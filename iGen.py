@@ -11,13 +11,12 @@ import DrawATree
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-
     # read variables to Initialization
     ReadInit.GetInit('RomeroInitData.json')
 
     # Init.DbFile comes from initialization variables read in ReadInit.GetInit
     # open the connection with the Database
-    conn=db.CreateConnection(InitVar.DBFile)
+    conn = db.CreateConnection(InitVar.DBFile)
 
     # Get all data needed from the database
     # InitVar.DBAArea also comes from initialization procedure
