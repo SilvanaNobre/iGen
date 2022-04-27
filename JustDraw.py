@@ -2,11 +2,10 @@
 Created on Mon April 06 2022
 @author: Silvana R Nobre
 """
+import DrawATree as df
 import ReadDB as db
 import ReadInit
-from ReadDB import GlobalVar as gv
-from ReadInit import InitVar as init
-import DrawATree as df
+from ReadInit import InitVar
 
 if __name__ == '__main__':
     # read variables to Initialization
@@ -14,8 +13,8 @@ if __name__ == '__main__':
 
     # Init.DbFile comes from initialization variables read in ReadInit.GetInit
     # open the connection with the Database
-    conn = db.CreateConnection(init.DBFile)
-    db.GetDataToDraw(conn, init.DBAArea)
+    conn = db.CreateConnection(InitVar.DBFile)
+    db.GetDataToDraw(conn, InitVar.DBAArea)
 
-    df.DrawATree(init.DBVarToShow, init.DBToShow)
+    df.DrawATree(InitVar.DBVarToShow, InitVar.DBToShow)
 # end JustDrow

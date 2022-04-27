@@ -3,9 +3,8 @@ Created on Mon April 06 2022
 @author: Silvana R Nobre
 """
 
-import sqlite3
-from sqlite3 import Error
-from ReadDB import GlobalVar as gv
+from ReadDB import GlobalVar
+
 
 # delete all the nodes that were created by InferenceEngine
 def DeleteNodes(conn):
@@ -14,23 +13,22 @@ def DeleteNodes(conn):
     cDelete.execute(SqlString)
     conn.commit()
 
+
 # insert all the nodes that were created by InferenceEngine
 def InsertNewNodes(conn):
-
     DeleteNodes(conn)
-    FieldCount = len(gv.NodeClassAttrNameList)
-    FilteredNodes = {key:value for (key,value) in gv.NodeDic.items() if value.PreviousNode != 0}
+    FieldCount = len(GlobalVar.NodeClassAttrNameList)
+    FilteredNodes = {key: value for (key, value) in GlobalVar.NodeDic.items() if value.PreviousNode != 0}
     NewNodesList = []
     for k in FilteredNodes.keys():
         NodeAttr = FilteredNodes[k]
         ExecStr = "NewNodesList.append((k "
-        for field in gv.NodeClassAttrNameList:
+        for field in GlobalVar.NodeClassAttrNameList:
             ExecStr += " , NodeAttr." + field
         ExecStr += "))"
         exec(ExecStr)
-    RepeatMark = "?,"*FieldCount
+    RepeatMark = "?," * FieldCount
     SqlString = "INSERT into Nodes VALUES (" + RepeatMark + "?)"
     cInsert = conn.cursor()
-    cInsert.executemany(SqlString,NewNodesList)
+    cInsert.executemany(SqlString, NewNodesList)
     conn.commit()
-

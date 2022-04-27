@@ -2,12 +2,12 @@
 Created on Mon April 04 2022
 @author: Silvana R Nobre
 """
-import ReadDB as db
-import WriteDB as wdb
-import ReadInit
-from ReadInit import InitVar
-from InferenceEngine import BuildATree
 import DrawATree
+import ReadDB as db
+import ReadInit
+import WriteDB as wdb
+from InferenceEngine import BuildATree
+from ReadInit import InitVar
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':

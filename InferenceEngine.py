@@ -4,7 +4,8 @@ Created on Mon April 04 2022
 @author: Silvana R Nobre
 """
 import ReadDB
-from ReadDB import GlobalVar as gv
+from ReadDB import GlobalVar
+
 
 # -------------------------------------------------------------------------------------------------
 # Creation of an Intervention Node based on a Rule Base
@@ -23,8 +24,8 @@ def CreateIntNode(InterventionNodeId, NoInterventionNodeId, PreviousNodeId, LINo
     #                              the one we are creating now, and the NoInt node (our reference)
     # InterventionNodeId is the one we are creating just now
     # ---------------------------------------------------------------------------------------------
-    niNode = gv.NodeDic[NoInterventionNodeId]
-    intNode = eval("gv.NodeClass("+gv.NodeClassAttrStr+")")
+    niNode = GlobalVar.NodeDic[NoInterventionNodeId]
+    intNode = eval("gv.NodeClass(" + GlobalVar.NodeClassAttrStr + ")")
     # ---------------------------------------------------------------------------------------------
     # we use here the gv.RuleConditionList that has the following fields:
     # RuleId, IfOrThen, RuleVar, RuleExpression
@@ -32,8 +33,8 @@ def CreateIntNode(InterventionNodeId, NoInterventionNodeId, PreviousNodeId, LINo
     # ----------------------------------------------------------------------------------------------
     ThenStatements = []
     thenItem = ReadDB.RuleConditionClass(0, 'Then', 'var', '=')
-    ThenStatements = [thenItem for thenItem in gv.RuleConditionList if
-                       (thenItem.RuleId == Rule[0] and thenItem.IfOrThen == 'Then')]
+    ThenStatements = [thenItem for thenItem in GlobalVar.RuleConditionList if
+                      (thenItem.RuleId == Rule[0] and thenItem.IfOrThen == 'Then')]
     # ----------------------------------------------------------------------------------------------
     # our reference node for calculation now is the NoInterventionNode -> noNode
     # we are replacing the var name for noNode.var
@@ -43,8 +44,8 @@ def CreateIntNode(InterventionNodeId, NoInterventionNodeId, PreviousNodeId, LINo
     for thenItem in ThenStatements:
         ThenStatement = thenItem.RuleExpression
         ThenVar = thenItem.RuleVar
-        for k in [keys for keys in gv.UpdateVarDic.keys()]:
-            ThenStatement = ThenStatement.replace(":"+k, "niNode."+k)
+        for k in [keys for keys in GlobalVar.UpdateVarDic.keys()]:
+            ThenStatement = ThenStatement.replace(":" + k, "niNode." + k)
         ExprToExec = "intNode." + ThenVar + " " + ThenStatement
         exec(ExprToExec)
     # complete intNode data
@@ -52,25 +53,28 @@ def CreateIntNode(InterventionNodeId, NoInterventionNodeId, PreviousNodeId, LINo
     intNode.LiNode = LINodeId
     intNode.Period = Period
     intNode.Intervention = Rule[1].NextIntervention
-    gv.NodeDic[InterventionNodeId] = intNode
+    GlobalVar.NodeDic[InterventionNodeId] = intNode
+
+
 # end def CreateIntNode(NodeId,PreviousNode,Period):
 
-#--------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # this function tests if the variable values of the NothingNode of the NothingNodeId we are analysing
 # matches the entire set of "if's" of an specific Rule
-def Match(Rule, NoInterventionNodeId)->bool:
+def Match(Rule, NoInterventionNodeId) -> bool:
     # Rule is a list, the element[0] is the RuleId
     # The NoInterventionNodeId is the reference node where the variables have the values we need here
     # ---------------------------------------------------------------------------------------------
-    noNode = gv.NodeDic[NoInterventionNodeId]
+    noNode = GlobalVar.NodeDic[NoInterventionNodeId]
     # ---------------------------------------------------------------------------------------------
     # we use here the gv.RuleConditionList that has the following fields:
     # RuleId, IfOrThen, RuleVar, RuleExpression
     # first we filter the list for the rule we are going to test the match here
     # ---------------------------------------------------------------------------------------------
     MatchConditions = []
-    ifItem = ReadDB.RuleConditionClass(0,'If','var','==')
-    MatchConditions = [ifItem for ifItem in gv.RuleConditionList if (ifItem.RuleId == Rule[0] and ifItem.IfOrThen == 'If')]
+    ifItem = ReadDB.RuleConditionClass(0, 'If', 'var', '==')
+    MatchConditions = [ifItem for ifItem in GlobalVar.RuleConditionList if
+                       (ifItem.RuleId == Rule[0] and ifItem.IfOrThen == 'If')]
     MatchResult = True
     # -------------------------------------------------------------------------------------------------
     # for each "if" of the MatchCondition we replace the var name by noNode.var
@@ -80,12 +84,14 @@ def Match(Rule, NoInterventionNodeId)->bool:
     for ifItem in MatchConditions:
         IfVar = ifItem.RuleVar
         IfRule = ifItem.RuleExpression
-        for k in [keys for keys in gv.UpdateVarDic.keys()]:
-            IfRule = IfRule.replace(":"+k,"noNode."+k)
+        for k in [keys for keys in GlobalVar.UpdateVarDic.keys()]:
+            IfRule = IfRule.replace(":" + k, "noNode." + k)
         IfResult = eval(IfRule)
         if not IfResult:
             MatchResult = False
     return MatchResult
+
+
 # end def Match(Rule,NodeId):
 
 # -------------------------------------------------------------------------------------------------
@@ -93,30 +99,32 @@ def Match(Rule, NoInterventionNodeId)->bool:
 # We are creating this NothingNode in this Period
 # we always save the Last Intervention Node (LiNodeId) that comes before this NothingNode
 def CreateNoInterventionNode(NoInterventionNodeId, PreviousNodeId, LiNodeId, Period):
-    def SearchTable (TableName, TableKey, ReturnValue):
-        Value = gv.SearchTableDic[TableName][TableKey]
+    def SearchTable(TableName, TableKey, ReturnValue):
+        Value = GlobalVar.SearchTableDic[TableName][TableKey]
         return Value
+
     # ---------------------------------------------------------------------------------------------
-    pvNode = gv.NodeDic[PreviousNodeId]
-    niNode = eval("gv.NodeClass("+gv.NodeClassAttrStr+")")
+    pvNode = GlobalVar.NodeDic[PreviousNodeId]
+    niNode = eval("gv.NodeClass(" + GlobalVar.NodeClassAttrStr + ")")
     # ---------------------------------------------------------------------------------------------
     # Users can use any node variable in the update rules
     # Here we are substituting all variables by a pvNode.var
     # because the rules refers to values of the previous node
     # gv.UpdateVarDic is a dic of all node variables we can use in "Then" and "Update" statements
     # ---------------------------------------------------------------------------------------------
-    for k1 in [keys for keys in gv.UpdateVarDic.keys()]:
+    for k1 in [keys for keys in GlobalVar.UpdateVarDic.keys()]:
         # replace all variables, not only the key one
-        NewUpdateRule = gv.UpdateVarDic[k1].UpdateRule
-        for k2 in [keys for keys in gv.UpdateVarDic.keys()]:
-            NewUpdateRule = NewUpdateRule.replace(":"+k2, "pvNode."+k2)
+        NewUpdateRule = GlobalVar.UpdateVarDic[k1].UpdateRule
+        for k2 in [keys for keys in GlobalVar.UpdateVarDic.keys()]:
+            NewUpdateRule = NewUpdateRule.replace(":" + k2, "pvNode." + k2)
         # and then we execute the rule to calculate the new values for the node we are inserting now
-        ExecStr = "niNode."+k1+" "+NewUpdateRule
+        ExecStr = "niNode." + k1 + " " + NewUpdateRule
         exec(ExecStr)
     # complete the information of the niNode
     niNode.PreviousNode = PreviousNodeId
     niNode.LiNode = LiNodeId
-    gv.NodeDic[NoInterventionNodeId] = niNode
+    GlobalVar.NodeDic[NoInterventionNodeId] = niNode
+
 
 # end  CreateNothingNode(NothingNodeId, PreviousNodeId, LiNodeId, Period):
 
@@ -130,10 +138,10 @@ def CreateNoInterventionNode(NoInterventionNodeId, PreviousNodeId, LiNodeId, Per
 # -------------------------------------------------------------------------------------------------
 def OpenNode(LiNodeId):
     # ---------------------------------------------------------------------------------------------
-    LastIntervention = gv.NodeDic[LiNodeId].Intervention
-    LiPeriod = gv.NodeDic[LiNodeId].Period
+    LastIntervention = GlobalVar.NodeDic[LiNodeId].Intervention
+    LiPeriod = GlobalVar.NodeDic[LiNodeId].Period
     # filter RuleList by Intervention
-    LiRuleList = list(gv.RuleDic.items())
+    LiRuleList = list(GlobalVar.RuleDic.items())
     LiRuleList = [rItem for rItem in LiRuleList if rItem[1].LastIntervention == LastIntervention]
 
     Period = LiPeriod
@@ -143,9 +151,9 @@ def OpenNode(LiNodeId):
     while True:
         Period = Period + 1
 
-        if Period <= int(gv.ParamDic['Horizon']):
-            NoInterventionNodeId = gv.LastNode + 1
-            gv.LastNode = NoInterventionNodeId
+        if Period <= int(GlobalVar.ParamDic['Horizon']):
+            NoInterventionNodeId = GlobalVar.LastNode + 1
+            GlobalVar.LastNode = NoInterventionNodeId
             # Create a Nothing Node linked to this Node
             # The new node comes with updated values
             # ---------------------------------------------------------------------------------
@@ -155,13 +163,13 @@ def OpenNode(LiNodeId):
                 for Rule in LiRuleList:
                     # if Match...
                     if Match(Rule, NoInterventionNodeId):
-                        InterventionNodeId = gv.LastNode + 1
-                        gv.LastNode = InterventionNodeId
+                        InterventionNodeId = GlobalVar.LastNode + 1
+                        GlobalVar.LastNode = InterventionNodeId
                         # Create a intervention Node linked to Previous Node
                         # The new node comes with updated values
                         # -------------------------------------------------------------------------
                         CreateIntNode(InterventionNodeId, NoInterventionNodeId, PreviousNodeId, LiNodeId,
-                                  Period, Rule)
+                                      Period, Rule)
                         GenNodesCount = GenNodesCount + 1
                     # end if Mach
                 # end for Rule in LiRuleList:
@@ -170,6 +178,8 @@ def OpenNode(LiNodeId):
         else:
             break
     return GenNodesCount
+
+
 # end def OpenNode(NodeId):
 
 # Create a Tree is the main algorithm of the Inference Engine
@@ -184,7 +194,7 @@ def BuildATree():
     while True:
         NodesToOpen = []
         # transform NodeDic into a List of tuples
-        NodesToOpen = [(nKey, nItem) for nKey, nItem in gv.NodeDic.items() if nItem.NodeType in ('Initial', 'Middle')]
+        NodesToOpen = [(nKey, nItem) for nKey, nItem in GlobalVar.NodeDic.items() if nItem.NodeType in ('Initial', 'Middle')]
         NodesToOpenCount = len(NodesToOpen)
 
         if NodesToOpenCount > 0:
@@ -194,9 +204,9 @@ def BuildATree():
                 if GenNodesCount == 0:
                     # if no intervention nodes can be generated from this node, it is a final one
                     # update the global Nodes dictionary
-                    gv.NodeDic[Node[0]].NodeType = 'Final'
+                    GlobalVar.NodeDic[Node[0]].NodeType = 'Final'
                 else:
-                    gv.NodeDic[Node[0]].NodeType = 'Opened'
+                    GlobalVar.NodeDic[Node[0]].NodeType = 'Opened'
                     # end for Node in NodesToOpen:
         else:
             break
