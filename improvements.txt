@@ -1,0 +1,8 @@
+- Search Table: read the tables to be created from the Variable table. Do not read from SearchTable
+- Change the documentation of the code, Mauro will send the template
+  https://www.jetbrains.com/help/pycharm/creating-documentation-comments.html
+
+- Develop a program do create the initial database
+- Create more two databases:
+    - an American problem
+    - an European problem
