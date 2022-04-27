@@ -5,9 +5,9 @@ Created on Mon April 04 2022
 import ReadDB as db
 import WriteDB as wdb
 import ReadInit
-from ReadInit import InitVar as init
+from ReadInit import InitVar
 from InferenceEngine import BuildATree
-import DrawATree as df
+import DrawATree
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -17,17 +17,17 @@ if __name__ == '__main__':
 
     # Init.DbFile comes from initialization variables read in ReadInit.GetInit
     # open the connection with the Database
-    conn=db.CreateConnection(init.DBFile)
+    conn=db.CreateConnection(InitVar.DBFile)
 
     # Get all data needed from the database
-    # Init.DBAArea also comes from initialization procedure
-    db.GetData(conn, init.DBAArea)
+    # InitVar.DBAArea also comes from initialization procedure
+    db.GetData(conn, InitVar.DBAArea)
 
     # create the Tree of alternatives from the Inference engine algorithm
     BuildATree()
 
     wdb.InsertNewNodes(conn)
 
-    df.DrawATree(init.DBVarToShow, init.DBToShow)
+    DrawATree.DrawATree(InitVar.DBVarToShow, InitVar.DBToShow)
     conn.close()
     # prepare other 2 databases with new rules and initial nodes
