@@ -189,8 +189,8 @@ def GetInitialNodes(conn, dbAnalysisArea) -> dict:
         i += 1
     FieldStr = FieldStr + " "
     SqlString = "SELECT " + FieldStr + \
-                "FROM Nodes as n INNER JOIN Stand s on s.StandId = n.Stand " + \
-                "WHERE n.NodeType = 'Initial' and s.AArea = ?"
+                "FROM Nodes as n INNER JOIN MgmUnit mu on mu.MgmUnitId = n.MgmUnit " + \
+                "WHERE n.NodeType = 'Initial' and mu.AArea = ?"
     LocalCur.execute(SqlString, (dbAnalysisArea,))
     LocalDic = {}
     for row in LocalCur.fetchall():
@@ -213,8 +213,8 @@ def GetAllNodes(conn, dbAnalysisArea) -> dict:
         i += 1
     FieldStr = FieldStr + " "
     SqlString = "SELECT " + FieldStr + \
-                "FROM Nodes as n INNER JOIN Stand s on s.StandId = n.Stand " + \
-                "WHERE s.AArea = ?"
+                "FROM Nodes as n INNER JOIN MgmUnit mu on mu.MgmUnitId = n.MgmUnit " + \
+                "WHERE mu.AArea = ?"
     LocalCur.execute(SqlString, (dbAnalysisArea,))
     LocalDic = {}
     for row in LocalCur.fetchall():

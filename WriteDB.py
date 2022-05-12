@@ -22,13 +22,16 @@ def InsertNewNodes(conn):
     NewNodesList = []
     for k in FilteredNodes.keys():
         NodeAttr = FilteredNodes[k]
+        FieldList = '(NodeId '
         ExecStr = "NewNodesList.append((k "
         for field in GlobalVar.NodeClassAttrNameList:
             ExecStr += " , NodeAttr." + field
+            FieldList += ", " + field
+        FieldList += ') '
         ExecStr += "))"
         exec(ExecStr)
     RepeatMark = "?," * FieldCount
-    SqlString = "INSERT into Nodes VALUES (" + RepeatMark + "?)"
+    SqlString = "INSERT into Nodes " + FieldList + "VALUES (" + RepeatMark + "?)"
     cInsert = conn.cursor()
     cInsert.executemany(SqlString, NewNodesList)
     conn.commit()

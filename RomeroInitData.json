@@ -1,7 +1,7 @@
 {
   "DBAArea": "1",
-  "DBFile": "C:/Users/DELL/Dropbox/BD/IGen/Pulp.db",
-  "DBVarToShow": "Stand",
-  "DBToShow": "6",
+  "DBFile": "C:/Users/DELL/Dropbox/BD/IGen/American.db",
+  "DBVarToShow": "MgmUnit",
+  "DBToShow": "1",
   "DBType": "sqLite3"
 }

@@ -5,6 +5,8 @@ Created on Mon April 04 2022
 """
 import ReadDB
 from ReadDB import GlobalVar
+import ExtFunctions
+
 
 
 # -------------------------------------------------------------------------------------------------
@@ -25,7 +27,7 @@ def CreateIntNode(InterventionNodeId, NoInterventionNodeId, PreviousNodeId, LINo
     # InterventionNodeId is the one we are creating just now
     # ---------------------------------------------------------------------------------------------
     niNode = GlobalVar.NodeDic[NoInterventionNodeId]
-    intNode = eval("gv.NodeClass(" + GlobalVar.NodeClassAttrStr + ")")
+    intNode = eval("GlobalVar.NodeClass(" + GlobalVar.NodeClassAttrStr + ")")
     # ---------------------------------------------------------------------------------------------
     # we use here the gv.RuleConditionList that has the following fields:
     # RuleId, IfOrThen, RuleVar, RuleExpression
@@ -105,7 +107,7 @@ def CreateNoInterventionNode(NoInterventionNodeId, PreviousNodeId, LiNodeId, Per
 
     # ---------------------------------------------------------------------------------------------
     pvNode = GlobalVar.NodeDic[PreviousNodeId]
-    niNode = eval("gv.NodeClass(" + GlobalVar.NodeClassAttrStr + ")")
+    niNode = eval("GlobalVar.NodeClass(" + GlobalVar.NodeClassAttrStr + ")")
     # ---------------------------------------------------------------------------------------------
     # Users can use any node variable in the update rules
     # Here we are substituting all variables by a pvNode.var
