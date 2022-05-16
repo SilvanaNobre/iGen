@@ -8,13 +8,15 @@ import ReadInit
 import WriteDB as wdb
 from InferenceEngine import BuildATree
 from ReadInit import InitVar
-import argparse
+from argparse import ArgumentParser
+
 
 def ProcessCmdLine():
-    parser = argparse.ArgumentParser(description='iGen, alternatives of forestry management generator.')
+    parser = ArgumentParser(description='iGen, alternatives of forestry management generator.')
     parser.add_argument('-pp', '--projectpath', help='Path where project is stored or will be created')
     parser.add_argument('-pt', '--projecttemplatepath', help='Project template to be cloned to project path', type=str)
     return parser.parse_args()
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
