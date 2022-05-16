@@ -7,5 +7,5 @@
     - an American problem
     - an European problem
 
-- Create a "dinamic" and web alternatives diagram viewer as in:
+- Create a "dinamic" web-based alternatives diagram viewer as in:
   https://towardsdatascience.com/python-interactive-network-visualization-using-networkx-plotly-and-dash-e44749161ed7

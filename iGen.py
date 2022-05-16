@@ -13,8 +13,10 @@ from argparse import ArgumentParser
 
 def ProcessCmdLine():
     parser = ArgumentParser(description='iGen, alternatives of forestry management generator.')
-    parser.add_argument('-pp', '--projectpath', help='Path where project is stored or will be created')
-    parser.add_argument('-pt', '--projecttemplatepath', help='Project template to be cloned to project path', type=str)
+    parser.add_argument('-pp', '--projectpath', help='Path where project is stored or will be created',
+                        type=str, required=True)
+    parser.add_argument('-pt', '--projecttemplatepath', help='Project template to be cloned to project path',
+                        type=str)
     return parser.parse_args()
 
 
