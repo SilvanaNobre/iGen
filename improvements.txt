@@ -9,3 +9,4 @@
 
 - Create a "dinamic" web-based alternatives diagram viewer as in:
   https://towardsdatascience.com/python-interactive-network-visualization-using-networkx-plotly-and-dash-e44749161ed7
+  https://towardsdatascience.com/tutorial-network-visualization-basics-with-networkx-and-plotly-and-a-little-nlp-57c9bbb55bb9

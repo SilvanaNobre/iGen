@@ -1,6 +1,6 @@
 {
   "DBAArea": "1",
-  "DBFile": "C:/Users/DELL/Dropbox/BD/IGen/American.db",
+  "DBFile": "db_samples/American.db",
   "DBVarToShow": "MgmUnit",
   "DBToShow": "1",
   "DBType": "sqLite3"
