@@ -2,6 +2,6 @@
   "DBAArea": "1",
   "DBFile": "db_samples/American.db",
   "DBVarToShow": "MgmUnit",
-  "DBToShow": "1",
+  "DBToShow": "4",
   "DBType": "sqLite3"
 }

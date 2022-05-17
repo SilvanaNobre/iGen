@@ -14,29 +14,14 @@ def PennsylvaniaYield(Age, SiteLst, ForestTypeLst, EcoRegionLst, Stock) -> float
     #--------------------------------------------------
     # Intercepter; Age coefficient
     alfa = {0:9.65161,1:-79.67558}
-   # Sites coefficients
+    # Sites coefficients
     beta = {1:0.48990, 2:0, 3:-0.90516}
     # Forest Types coefficients
     phi = {1:0.23674, 2:0.55308, 3:0.05102, 4:0.31938, 5:0, 6:-0.04277, 7:0.46172}
     # Ecological Regions coefficients
-    gamma = {}
-    gamma[1] = -0.19182
-    gamma[2] = 0
-    gamma[3] = 0
-    gamma[4] = 0
-    gamma[5] = 0.37972
-    gamma[6] = 0
-    gamma[7] = 0
-    gamma[8] = 0.40850
-    gamma[9] = 0
-    gamma[10] = 0
-    gamma[11] = 0
-    gamma[12] = 0
-    gamma[13] = 0
+    gamma = {1:-0.19182, 2:0, 3:0, 4:0, 5:0.37972, 6:0, 7:0, 8:0.40850, 9:0, 10:0, 11:0, 12:0, 13:0}
     # Stock coefficients
-    lda = {}
-    lda["stocked"] = 0
-    lda["understocked"] = -0.41902
+    lda = {'stocked':0, 'understocked':-0.41902}
 
     x_alfa = alfa[0]
     if Age > 0:
