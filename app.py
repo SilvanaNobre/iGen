@@ -2,15 +2,9 @@
 import dash
 from dash import dcc
 from dash import html
-import networkx as nx
-import plotly.graph_objs as go
-
-import pandas as pd
-from colour import Color
-from datetime import datetime
-from textwrap import dedent as d
-import json
-
+import DrawATree
+import ReadDB
+from iGenParams import iGenParams
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -23,10 +17,23 @@ styles = {
     }
 }
 
+iGenParams('RomeroInitData.json')
+
+conn = ReadDB.CreateConnection(iGenParams.DBFile)
+ReadDB.GetDataToDraw(conn, iGenParams.DBAArea)
+
 app.layout = html.Div([
-    html.Div([html.H1("Transaction Network Graph")],
+    html.Div([html.H1("iGen Display Graph")],
              className="row",
-             style={'textAlign': "center"})
+             style={'textAlign': "center"}),
+    html.Div([
+        html.Div(
+            className="eight columns",
+            children=[dcc.Graph(id="my-graph",
+                                figure=DrawATree.DrawATree(iGenParams.DBVarToShow,
+                                                           iGenParams.DBToShow, True))]
+        )
+    ])
 ])
 
 if __name__ == '__main__':

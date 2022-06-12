@@ -1,6 +1,6 @@
 {
   "DBAArea": "1",
-  "DBFile": "db_samples/American.db",
+  "DBFile": "db_samples/Tiny.db",
   "DBVarToShow": "MgmUnit",
   "DBToShow": "4",
   "DBType": "sqLite3"

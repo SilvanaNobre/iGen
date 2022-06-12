@@ -4,10 +4,10 @@ Created on Mon April 04 2022
 """
 import DrawATree
 import ReadDB as db
-import ReadInit
+import iGenParams
 import WriteDB as wdb
 from InferenceEngine import BuildATree
-from ReadInit import InitVar
+from iGenParams import iGenParams
 from argparse import ArgumentParser
 
 
@@ -26,21 +26,21 @@ if __name__ == '__main__':
     args = ProcessCmdLine()
     print(args.projectpath)
     print(args.projecttemplatepath)
-    ReadInit.GetInit('RomeroInitData.json')
+    iGenParams('RomeroInitData.json')
 
     # Init.DbFile comes from initialization variables read in ReadInit.GetInit
     # open the connection with the Database
-    conn = db.CreateConnection(InitVar.DBFile)
+    conn = db.CreateConnection(iGenParams.DBFile)
 
     # Get all data needed from the database
     # InitVar.DBAArea also comes from initialization procedure
-    db.GetData(conn, InitVar.DBAArea)
+    db.GetData(conn, iGenParams.DBAArea)
 
     # create the Tree of alternatives from the Inference engine algorithm
     BuildATree()
 
     wdb.InsertNewNodes(conn)
 
-    DrawATree.DrawATree(InitVar.DBVarToShow, InitVar.DBToShow)
+    DrawATree.DrawATree(iGenParams.DBVarToShow, iGenParams.DBToShow)
     conn.close()
     # prepare other 2 databases with new rules and initial nodes

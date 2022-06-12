@@ -1,5 +1,8 @@
-certifi==2021.10.8
+certifi==2022.5.18.1
 wincertstore==0.2
-matplotlib~=3.4.3
-networkx~=2.6.3
-pandas~=1.3.4
+matplotlib==3.5.2
+networkx==2.8.3
+pandas==1.4.2
+dash~=2.5.0
+plotly~=5.8.2
+colour~=0.1.5
