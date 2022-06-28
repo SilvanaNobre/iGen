@@ -15,5 +15,5 @@ if __name__ == '__main__':
     conn = ReadDB.CreateConnection(iGenParams.DBFile)
     ReadDB.GetDataToDraw(conn, iGenParams.DBAArea)
 
-    DrawATree.DrawATree(iGenParams.DBVarToShow, iGenParams.DBToShow,WebFigure=False)
+    DrawATree.DrawATree(iGenParams.DBVarToShow, iGenParams.DBToShow,WebFigure=True)
 # end JustDrow

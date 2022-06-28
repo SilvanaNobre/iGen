@@ -1,9 +1,7 @@
-# ---------------------------------------------------------------------------------------------
 import matplotlib.pyplot as plt
 import networkx as nx
-import json
 from ReadDB import GlobalVar as gv
-import plotly.graph_objs as go
+import drawNetworkxPlotly
 
 
 class ClassSpaceNode(object):
@@ -13,83 +11,10 @@ class ClassSpaceNode(object):
         self.fRow = fRow
 
 
-def CreateWebFig(TreeGraph: nx.MultiDiGraph):
-
-    traceRecode = []
-    index = 0
-    for edge in TreeGraph.edges:
-        x0, y0 = TreeGraph.nodes[edge[0]]['pos']
-        x1, y1 = TreeGraph.nodes[edge[1]]['pos']
-        #weight = float(G.edges[edge]['TransactionAmt']) / max(edge1['TransactionAmt']) * 10
-        trace = go.Scatter(x=tuple([x0, x1, None]), y=tuple([y0, y1, None]),
-                           mode='lines',
-                           #line={'width': weight},
-                           #marker=dict(color=colors[index]),
-                           line_shape='spline',
-                           opacity=1)
-        traceRecode.append(trace)
-        index = index + 1
-
-    node_trace = go.Scatter(x=[], y=[], hovertext=[], text=[], mode='markers+text', textposition="bottom center",
-                            hoverinfo="text", marker={'size': 50, 'color': 'LightSkyBlue'})
-    index = 0
-    for node in TreeGraph.nodes():
-        x, y = TreeGraph.nodes[node]['pos']
-
-        node_trace['x'] += tuple([x])
-        node_trace['y'] += tuple([y])
-        node_trace['hovertext'] += tuple(['hovertext'])
-        node_trace['text'] += tuple(['text'])
-        index = index + 1
-
-    traceRecode.append(node_trace)
-
-    middle_hover_trace = go.Scatter(x=[], y=[], hovertext=[], mode='markers', hoverinfo="text",
-                                    marker={'size': 20, 'color': 'LightSkyBlue'},
-                                    opacity=0)
-    index = 0
-    for edge in TreeGraph.edges:
-        x0, y0 = TreeGraph.nodes[edge[0]]['pos']
-        x1, y1 = TreeGraph.nodes[edge[1]]['pos']
-        hovertext = 'hovertext'
-        middle_hover_trace['x'] += tuple([(x0 + x1) / 2])
-        middle_hover_trace['y'] += tuple([(y0 + y1) / 2])
-        middle_hover_trace['hovertext'] += tuple([hovertext])
-        index = index + 1
-
-    traceRecode.append(middle_hover_trace)
-
-    figure = {
-        "data": traceRecode,
-        "layout": go.Layout(title=gv.ParamDic['ModelTitle'],
-                            margin={'b': 40, 'l': 40, 'r': 40, 't': 40},
-                            xaxis={'showgrid': False, 'zeroline': False, 'showticklabels': False},
-                            yaxis={'showgrid': False, 'zeroline': False, 'showticklabels': False},
-                            height=600,
-                            clickmode='event+select',
-                            annotations=[
-                                dict(
-                                    ax=(TreeGraph.nodes[edge[0]]['pos'][0] + TreeGraph.nodes[edge[1]]['pos'][0]) / 2,
-                                    ay=(TreeGraph.nodes[edge[0]]['pos'][1] + TreeGraph.nodes[edge[1]]['pos'][1]) / 2,
-                                    axref='x',
-                                    ayref='y',
-                                    x=(TreeGraph.nodes[edge[1]]['pos'][0] * 3 + TreeGraph.nodes[edge[0]]['pos'][0]) / 4,
-                                    y=(TreeGraph.nodes[edge[1]]['pos'][1] * 3 + TreeGraph.nodes[edge[0]]['pos'][1]) / 4,
-                                    xref='x',
-                                    yref='y',
-                                    showarrow=True,
-                                    arrowhead=3,
-                                    arrowsize=4,
-                                    arrowwidth=1,
-                                    opacity=1
-                                ) for edge in TreeGraph.edges]
-                            )}
-    return figure
-
-
 def CreateFig(FilteredNodeDic: dict,
               TG_ColorDic: dict, TG_SizeDic: dict, TG_LabelDic: dict, TG_PosDic: dict,
               WebFigure: bool = True):
+
     # create the Graph, nodes and edges
     TreeGraph = nx.MultiDiGraph()
     TreeGraph.add_nodes_from(FilteredNodeDic.keys())
@@ -115,19 +40,37 @@ def CreateFig(FilteredNodeDic: dict,
         TreeGraph.nodes[node]['pos'] = list(pos[node])
 
     if WebFigure:
-        return CreateWebFig(TreeGraph)
+        ax = plt.gca()
+        # title = gv.ParamDic['ModelTitle'] + " - " + VarToShow + ": " + str(WhatToShow) Não está sendo usado
+        ax.set_title(gv.ParamDic['ModelTitle'])
+
+        fig=drawNetworkxPlotly.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList, labels=TG_LabelDic, font_size=8,
+                font_color="black")
+
+        fig.update_layout(
+            yaxis={'visible': False, 'showticklabels': False},
+            showlegend=False
+        )
+        fig.write_html('scatter.html')
+        pass
     else:
         ax = plt.gca()
         # title = gv.ParamDic['ModelTitle'] + " - " + VarToShow + ": " + str(WhatToShow) Não está sendo usado
         ax.set_title(gv.ParamDic['ModelTitle'])
 
         nx.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList, labels=TG_LabelDic, font_size=8,
-                font_color="black", ax=ax)
-
+                 font_color="black"
+                 , ax=ax
+        )
+        # drawNetworkxPlotly.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList,
+        #                                  labels=TG_LabelDic, font_size=8,
+        #                                  font_color="black")
         plt.axis('on')
         ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
         ax.get_yaxis().set_visible(False)
+
         return TreeGraph
+
 
 def GetATree(VarToShow: str, WhatToShow: int, WebFigure):
     # create the Graph, nodes and edges
