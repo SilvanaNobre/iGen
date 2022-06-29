@@ -2,18 +2,18 @@
 Created on Mon April 06 2022
 @author: Silvana R Nobre
 """
-import DrawATree
+from support import DrawATree
+from support import dbquery
 import ReadDB
 from iGenParams import iGenParams
 
 if __name__ == '__main__':
     # read variables to Initialization
     iGenParams('RomeroInitData.json')
-
+    dbquery.db = r'sqlite:///D:\Atrium\Projects\Silvana\_iGen\db\{0}'.format(iGenParams.DBFile)
     # Init.DbFile comes from initialization variables read in ReadInit.GetInit
     # open the connection with the Database
-    conn = ReadDB.CreateConnection(iGenParams.DBFile)
-    ReadDB.GetDataToDraw(conn, iGenParams.DBAArea)
+    ReadDB.GetDataToDraw(iGenParams.DBAArea)
 
-    DrawATree.DrawATree(iGenParams.DBVarToShow, iGenParams.DBToShow,WebFigure=True)
+    DrawATree.DrawATreeMatplotlib(iGenParams.DBVarToShow, iGenParams.DBToShow)
 # end JustDrow

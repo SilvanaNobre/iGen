@@ -2,9 +2,8 @@
 Created on Mon April 04 2022
 @author: Silvana R Nobre
 """
-import DrawATree
+from support import DrawATree
 import ReadDB as db
-import iGenParams
 import WriteDB as wdb
 from InferenceEngine import BuildATree
 from iGenParams import iGenParams

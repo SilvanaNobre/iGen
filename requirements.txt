@@ -6,3 +6,6 @@ pandas==1.4.2
 dash~=2.5.0
 plotly~=5.8.2
 colour~=0.1.5
+Flask~=2.1.2
+SQLAlchemy~=1.4.39
+numpy~=1.22.3

@@ -3,7 +3,7 @@ Created on Mon April 04 2022
 @author: Silvana R Nobre
 """
 
-import sqlite3
+import support.dbquery as dbquery
 
 class BaseClass(object):
     def __init__(self, classtype):
@@ -67,21 +67,6 @@ class GlobalVar(object):
     NodeClassAttrStr = ' '
 
 
-def CreateConnection(db_file):
-    """ create a database connection to the SQLite database
-        specified by the db_file
-    :param db_file: database file
-    :return: Connection object or None
-    """
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-    except sqlite3.Error as e:
-        print(e)
-
-    return conn
-
-
 def GetSearchTableParams(FunctionStr) -> TableSearchParamsClass:
     tParams = TableSearchParamsClass(" ", " ", " ")
     fName = "SearchTable("
@@ -116,7 +101,7 @@ def GetSearchTableParams(FunctionStr) -> TableSearchParamsClass:
 
 
 # read the node variables with the update Rules
-def GetVariables(conn) -> dict:
+def GetVariables() -> dict:
     class ClassVar(object):
         def __init__(self, VarType, InitValue, UpdateRule):
             self.VarType = VarType
@@ -132,23 +117,22 @@ def GetVariables(conn) -> dict:
             uRule = uRule.replace(tSearchParams.Return, NewReturnParam)
         return uRule
 
-    LocalCur = conn.cursor()
-    SqlString = "SELECT v.VariableId, v.VarType, v.NoIntNodeUpdateRule " + \
+    SqlString = f"SELECT v.VariableId, v.VarType, v.NoIntNodeUpdateRule " + \
                 "FROM Variable v " + \
-                "WHERE v.Scope =?"
-    LocalCur.execute(SqlString, ('Node',))
+                "WHERE v.Scope = 'Node'"
+    variables = dbquery.executeSQL(SqlString)
     LocalDic = {}
-    for row in LocalCur.fetchall():
-        if row[1][:3] == 'Int' or row[1][:3] == 'int':
+    for variable in variables:
+        if variable[1][:3] == 'Int' or variable[1][:3] == 'int':
             iV = 0
-        elif row[1][:3] == 'Str' or row[1][:3] == 'str':
+        elif variable[1][:3] == 'Str' or variable[1][:3] == 'str':
             iV = 'x'
-        elif row[1][:3] == 'Dec' or row[1][:3] == 'dec':
+        elif variable[1][:3] == 'Dec' or variable[1][:3] == 'dec':
             iV = 0.1
         else:
             iV = '0'
-        AjustedUpdateRule = AjustTableSearch(row[2])
-        LocalDic[row[0]] = ClassVar(VarType=row[1], InitValue=iV, UpdateRule=AjustedUpdateRule)
+        AjustedUpdateRule = AjustTableSearch(variable[2])
+        LocalDic[variable[0]] = ClassVar(VarType=variable[1], InitValue=iV, UpdateRule=AjustedUpdateRule)
     return LocalDic
 
 
@@ -174,9 +158,8 @@ def GetNameAttrList(VarDic) -> list:
 
 
 # read Nodes from the database
-def GetInitialNodes(conn, dbAnalysisArea) -> dict:
+def GetInitialNodes(dbAnalysisArea) -> dict:
     FieldList = GlobalVar.NodeClassAttrNameList
-    LocalCur = conn.cursor()
     LastItem = len(FieldList)
     FieldStr = "n.NodeId"
     ClassStr = ""
@@ -188,19 +171,18 @@ def GetInitialNodes(conn, dbAnalysisArea) -> dict:
             ClassStr += ","
         i += 1
     FieldStr = FieldStr + " "
-    SqlString = "SELECT " + FieldStr + \
-                "FROM Nodes as n INNER JOIN MgmUnit mu on mu.MgmUnitId = n.MgmUnit " + \
-                "WHERE n.NodeType = 'Initial' and mu.AArea = ?"
-    LocalCur.execute(SqlString, (dbAnalysisArea,))
+    SqlString = f"SELECT {FieldStr} " +\
+                "FROM Nodes as n INNER JOIN MgmUnit mu on mu.MgmUnitId = n.MgmUnit " +\
+                f"WHERE n.NodeType = 'Initial' and mu.AArea = '{dbAnalysisArea}'"
+    nodes = dbquery.executeSQL(SqlString)
     LocalDic = {}
-    for row in LocalCur.fetchall():
+    for row in nodes:
         LocalDic[row[0]] = eval("GlobalVar.NodeClass(" + ClassStr + ")")
     return LocalDic
 
 
-def GetAllNodes(conn, dbAnalysisArea) -> dict:
+def GetAllNodes(dbAnalysisArea) -> dict:
     FieldList = GlobalVar.NodeClassAttrNameList
-    LocalCur = conn.cursor()
     LastItem = len(FieldList)
     FieldStr = "n.NodeId"
     ClassStr = ""
@@ -211,73 +193,66 @@ def GetAllNodes(conn, dbAnalysisArea) -> dict:
         if i < LastItem:
             ClassStr += ","
         i += 1
-    FieldStr = FieldStr + " "
-    SqlString = "SELECT " + FieldStr + \
-                "FROM Nodes as n INNER JOIN MgmUnit mu on mu.MgmUnitId = n.MgmUnit " + \
-                "WHERE mu.AArea = ?"
-    LocalCur.execute(SqlString, (dbAnalysisArea,))
+    SqlString = f"SELECT {FieldStr} " +\
+                "FROM Nodes as n INNER JOIN MgmUnit mu on mu.MgmUnitId = n.MgmUnit " +\
+                f"WHERE mu.AArea = '{dbAnalysisArea}'"
+    nodes = dbquery.executeSQL(SqlString)
     LocalDic = {}
-    for row in LocalCur.fetchall():
+    for row in nodes:
         LocalDic[row[0]] = eval("GlobalVar.NodeClass(" + ClassStr + ")")
     return LocalDic
 
 
 # read the Intervention Types from the database
-def GetInterventionTypes(conn) -> dict:
-    LocalCur = conn.cursor()
+def GetInterventionTypes() -> dict:
     SqlString = "SELECT IntTypeId, NodeColor FROM InterventionType"
-    LocalCur.execute(SqlString)
+    InterventionTypes = dbquery.executeSQL(SqlString)
     LocalDic = {}
-    for row in LocalCur.fetchall():
-        LocalDic[row[0]] = row[1]
+    for InterventionType in InterventionTypes:
+        LocalDic[InterventionType[0]] = InterventionType[1]
     return LocalDic
 
 
 # read the rules from database
-def GetRules(conn, dbAnalysisArea) -> dict:
-    LocalCur = conn.cursor()
+def GetRules(dbAnalysisArea) -> dict:
     SqlString = "SELECT r.RuleId, r.LastIntervention, r.NextIntervention " + \
                 "FROM Rule r INNER JOIN ValidRule v on v.Rule = r.RuleId " + \
-                "WHERE v.AArea =?"
-    LocalCur.execute(SqlString, (dbAnalysisArea,))
+                f"WHERE v.AArea ='{dbAnalysisArea}'"
+    rules = dbquery.executeSQL(SqlString)
     LocalDic = {}
-    for row in LocalCur.fetchall():
-        LocalDic[row[0]] = RuleClass(row[1], row[2])
+    for rule in rules:
+        LocalDic[rule[0]] = RuleClass(rule[1], rule[2])
     return LocalDic
 
 
 # read the rule conditions from database
-def GetRuleConditions(conn, dbAnalysisArea) -> list:
-    LocalCur = conn.cursor()
+def GetRuleConditions(dbAnalysisArea) -> list:
     SqlString = "SELECT r.RuleId, r.IfOrThen, r.RuleVar, r.RuleExpression " + \
                 "FROM RuleCondition r INNER JOIN ValidRule v on v.Rule = r.RuleId " + \
-                "WHERE v.AArea =?"
-    LocalCur.execute(SqlString, (dbAnalysisArea,))
+                "WHERE v.AArea = '{dbAnalysisArea}'"
+    RuleConditions = dbquery.executeSQL(SqlString)
     LocalList = []
-    for row in LocalCur.fetchall():
-        LocalList.append(RuleConditionClass(row[0], row[1], row[2], row[3]))
+    for RuleCondition in RuleConditions:
+        LocalList.append(RuleConditionClass(RuleConditions[0], RuleCondition[1], RuleCondition[2], RuleCondition[3]))
     return LocalList
 
 
 # read Yield Tables or similar tables from database
-def GetSearchTable(conn) -> dict:
-    TableCur = conn.cursor()
-    ValueCur = conn.cursor()
+def GetSearchTable() -> dict:
     TableDic = {}
     TableValueDic = {}
 
     SqlTableString = "SELECT NoIntNodeUpdateRule FROM Variable " + \
-                     "WHERE NoIntNodeUpdateRule LIKE ? "
-    TableCur.execute(SqlTableString, ("%SearchTable(%",))
-
-    for row in TableCur.fetchall():
-        tSearchParams = GetSearchTableParams(row[0])
+                     f"WHERE NoIntNodeUpdateRule LIKE '%SearchTable(%' "
+    tables = dbquery.executeSQL(SqlTableString)
+    for table in tables:
+        tSearchParams = GetSearchTableParams(table[0])
         SqlValueString = "SELECT " + tSearchParams.Key + " , " + tSearchParams.Return + " " + \
                          "FROM " + tSearchParams.Table
-        ValueCur.execute(SqlValueString)
+        values = dbquery.executeSQL(SqlValueString)
         ValueDic = {}
-        for rowv in ValueCur.fetchall():
-            KeyLength = len(rowv) - 1
+        for value in values:
+            KeyLength = len(values) - 1
             ExprToEvaluate = "("
             for i in range(0, KeyLength):
                 ExprToEvaluate = ExprToEvaluate + "rowv[" + str(i) + "]"
@@ -286,63 +261,59 @@ def GetSearchTable(conn) -> dict:
             ExprToEvaluate = ExprToEvaluate + ")"
             KeyValue = eval(ExprToEvaluate)
             ValueIndex = KeyLength
-            Value = rowv[ValueIndex]
+            Value = value[ValueIndex]
             ValueDic[KeyValue] = Value
         TableValueDic[tSearchParams.Table] = ValueDic
     return TableValueDic
 
 
 # read General Parameters from the database
-def GetGlobalVar(conn, dbAnalysisArea) -> list:
-    LocalCur = conn.cursor()
+def GetGlobalVar(dbAnalysisArea) -> dict:
     SqlString = "SELECT Variable, ParameterValue " + \
                 "FROM Parameter " + \
-                "WHERE AArea =?"
-    LocalCur.execute(SqlString, (dbAnalysisArea,))
+                f"WHERE AArea = '{dbAnalysisArea}'"
+    parameters = dbquery.executeSQL(SqlString)
     LocalDic = {}
-    for row in LocalCur.fetchall():
-        LocalDic[row[0]] = row[1]
+    for parameter in parameters:
+        LocalDic[parameter[0]] = parameter[1]
     return LocalDic
 
 
 # main function that gets all data needed in Inference Engine
-def GetData(conn, dbAnalysisArea):
-    GlobalVar.UpdateVarDic = GetVariables(conn)
+def GetData(dbAnalysisArea):
+    GlobalVar.UpdateVarDic = GetVariables()
     GlobalVar.NodeClassAttrNameList = GetNameAttrList(GlobalVar.UpdateVarDic)
     GlobalVar.NodeClass = ClassFactory("NodeClass", GlobalVar.NodeClassAttrNameList)
 
     # this Str will be used whenever we need to instantiate a NodeClass variable
     GlobalVar.NodeClassAttrStr = GetClassAttrStr(GlobalVar.UpdateVarDic)
 
-    GlobalVar.NodeDic = GetInitialNodes(conn, dbAnalysisArea)
-    GlobalVar.IntTDic = GetInterventionTypes(conn)
-    GlobalVar.RuleDic = GetRules(conn, dbAnalysisArea)
-    GlobalVar.RuleConditionList = GetRuleConditions(conn, dbAnalysisArea)
-    GlobalVar.SearchTableDic = GetSearchTable(conn)
-    GlobalVar.ParamDic = GetGlobalVar(conn, dbAnalysisArea)
+    GlobalVar.NodeDic = GetInitialNodes(dbAnalysisArea)
+    GlobalVar.IntTDic = GetInterventionTypes()
+    GlobalVar.RuleDic = GetRules(dbAnalysisArea)
+    GlobalVar.RuleConditionList = GetRuleConditions(dbAnalysisArea)
+    GlobalVar.SearchTableDic = GetSearchTable()
+    GlobalVar.ParamDic = GetGlobalVar(dbAnalysisArea)
 
     # FirstNode
     GlobalVar.FirstNode = min(GlobalVar.NodeDic.keys())
     # LastNode
     GlobalVar.LastNode = max(GlobalVar.NodeDic.keys())
 
-    return conn
 
-
-# end of def GetData(dbFileName,dbAnalysisArea):
+# end of def GetData(Name,dbAnalysisArea):
 
 # main function that gets all data needed just to draw a tree
-def GetDataToDraw(conn, dbAnalysisArea):
-    GlobalVar.UpdateVarDic = GetVariables(conn)
+def GetDataToDraw(dbAnalysisArea):
+    GlobalVar.UpdateVarDic = GetVariables()
     GlobalVar.NodeClassAttrNameList = GetNameAttrList(GlobalVar.UpdateVarDic)
     GlobalVar.NodeClass = ClassFactory("NodeClass", GlobalVar.NodeClassAttrNameList)
 
     # this Str will be used whenever we need to instantiate a NodeClass variable
     GlobalVar.NodeClassAttrStr = GetClassAttrStr(GlobalVar.UpdateVarDic)
 
-    GlobalVar.NodeDic = GetAllNodes(conn, dbAnalysisArea)
-    GlobalVar.IntTDic = GetInterventionTypes(conn)
-    GlobalVar.ParamDic = GetGlobalVar(conn, dbAnalysisArea)
+    GlobalVar.NodeDic = GetAllNodes(dbAnalysisArea)
+    GlobalVar.IntTDic = GetInterventionTypes()
+    GlobalVar.ParamDic = GetGlobalVar(dbAnalysisArea)
 
-    return conn
-# end of def GetDataToDraw(dbFileName,dbAnalysisArea):
+# end of def GetDataToDraw(Name,dbAnalysisArea):

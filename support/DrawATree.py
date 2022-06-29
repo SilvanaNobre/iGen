@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 from ReadDB import GlobalVar as gv
-import drawNetworkxPlotly
+from support import drawNetworkxPlotly
 
 
 class ClassSpaceNode(object):
@@ -10,10 +10,8 @@ class ClassSpaceNode(object):
         self.Row = Row
         self.fRow = fRow
 
-
-def CreateFig(FilteredNodeDic: dict,
-              TG_ColorDic: dict, TG_SizeDic: dict, TG_LabelDic: dict, TG_PosDic: dict,
-              WebFigure: bool = True):
+def CreateTreeGraph(FilteredNodeDic: dict,
+              TG_ColorDic: dict, TG_SizeDic: dict, TG_LabelDic: dict, TG_PosDic: dict):
 
     # create the Graph, nodes and edges
     TreeGraph = nx.MultiDiGraph()
@@ -38,41 +36,9 @@ def CreateFig(FilteredNodeDic: dict,
     pos = nx.drawing.layout.spring_layout(TreeGraph)
     for node in TreeGraph.nodes:
         TreeGraph.nodes[node]['pos'] = list(pos[node])
+    return TreeGraph
 
-    if WebFigure:
-        ax = plt.gca()
-        # title = gv.ParamDic['ModelTitle'] + " - " + VarToShow + ": " + str(WhatToShow) Não está sendo usado
-        ax.set_title(gv.ParamDic['ModelTitle'])
-
-        fig=drawNetworkxPlotly.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList, labels=TG_LabelDic, font_size=8,
-                font_color="black")
-
-        fig.update_layout(
-            yaxis={'visible': False, 'showticklabels': False},
-            showlegend=False
-        )
-        fig.write_html('scatter.html')
-        pass
-    else:
-        ax = plt.gca()
-        # title = gv.ParamDic['ModelTitle'] + " - " + VarToShow + ": " + str(WhatToShow) Não está sendo usado
-        ax.set_title(gv.ParamDic['ModelTitle'])
-
-        nx.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList, labels=TG_LabelDic, font_size=8,
-                 font_color="black"
-                 , ax=ax
-        )
-        # drawNetworkxPlotly.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList,
-        #                                  labels=TG_LabelDic, font_size=8,
-        #                                  font_color="black")
-        plt.axis('on')
-        ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
-        ax.get_yaxis().set_visible(False)
-
-        return TreeGraph
-
-
-def GetATree(VarToShow: str, WhatToShow: int, WebFigure):
+def GetATree(VarToShow: str, WhatToShow: int):
     # create the Graph, nodes and edges
     FilteredNodeDic = {}
     eValStr = "NodeAttr." + VarToShow + "==" + str(WhatToShow)
@@ -152,15 +118,37 @@ def GetATree(VarToShow: str, WhatToShow: int, WebFigure):
         else:
             TG_SizeDic[iNode] = int(gv.ParamDic['RegularNodeSize'])
             TG_LabelDic[iNode] = FilteredNodeDic[iNode].Intervention
-    return CreateFig(FilteredNodeDic, TG_ColorDic, TG_SizeDic, TG_LabelDic, TG_PosDic,
-                     WebFigure)
 
+    TreeGraph = CreateTreeGraph(FilteredNodeDic, TG_ColorDic, TG_SizeDic, TG_LabelDic, TG_PosDic)
+    return TreeGraph, TG_ColorDic, TG_SizeDic, TG_LabelDic, TG_PosDic
 
-def DrawATree(VarToShow: str, WhatToShow: int, WebFigure: bool = False):
-    TreeGraph = GetATree(VarToShow, WhatToShow, WebFigure)
-    if not WebFigure:
-        plt.show()
-        return None
-    else:
-        return TreeGraph
+def DrawATreeMatplotlib(VarToShow: str, WhatToShow: int):
+    TreeGraph, TG_ColorDic, TG_SizeDic, TG_LabelDic, TG_PosDic = GetATree(VarToShow, WhatToShow)
+    ax = plt.gca()
+    # title = gv.ParamDic['ModelTitle'] + " - " + VarToShow + ": " + str(WhatToShow) Não está sendo usado
+    ax.set_title(gv.ParamDic['ModelTitle'])
+    # add colors
+    nx.set_node_attributes(TreeGraph, TG_ColorDic, 'color')
+    colorList = list(nx.get_node_attributes(TreeGraph, 'color').values())
+
+    # add sizes
+    nx.set_node_attributes(TreeGraph, TG_SizeDic, 'size')
+    sizeList = list(nx.get_node_attributes(TreeGraph, 'size').values())
+
+    # add labels
+    nx.set_node_attributes(TreeGraph, TG_LabelDic, 'label')
+
+    # add position
+    nx.set_node_attributes(TreeGraph, TG_PosDic, 'pos')
+    nx.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList, labels=TG_LabelDic, font_size=8,
+            font_color="black"
+            , ax=ax
+            )
+    # drawNetworkxPlotly.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList,
+    #                                  labels=TG_LabelDic, font_size=8,
+    #                                  font_color="black")
+    plt.axis('on')
+    ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
+    ax.get_yaxis().set_visible(False)
+    plt.show()
 
