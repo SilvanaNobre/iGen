@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="American" uuid="345548ed-5007-446e-9e32-46445d13c884">
+    <data-source source="LOCAL" name="American" uuid="f119afc1-1d3b-4b6e-b3a2-73182004611d">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:D:\Atrium\Projects\Silvana\iGen\db_samples\American.db</jdbc-url>
+      <jdbc-url>jdbc:sqlite:D:\Atrium\Projects\Silvana\iGen\db\American\American.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
       <libraries>
         <library>
@@ -13,11 +13,11 @@
         </library>
       </libraries>
     </data-source>
-    <data-source source="LOCAL" name="Pulp" uuid="839f1d1b-75b4-4aea-9479-d37a0a7982ee">
+    <data-source source="LOCAL" name="Pulp" uuid="c2051885-31c1-44ee-b04e-d009b5d0284d">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:D:\Atrium\Projects\Silvana\iGen\db_samples\Pulp.db</jdbc-url>
+      <jdbc-url>jdbc:sqlite:D:\Atrium\Projects\Silvana\iGen\db\Pulp\Pulp.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
       <libraries>
         <library>

@@ -1,6 +1,6 @@
 {
   "DBAArea": "1",
-  "DBFile": "American\\American.db",
+  "DBFile": "Pulp\\Pulp.db",
   "DBVarToShow": "MgmUnit",
   "DBToShow": "4",
   "DBType": "sqLite3"

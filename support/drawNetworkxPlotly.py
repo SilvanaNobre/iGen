@@ -1,10 +1,11 @@
 import plotly.graph_objects as go
-import pandas as pd
 import numpy as np
 
-color_pattern = {'y': '#ffff00',
+color_pattern = {'r': '#ff0000',
+                 'g': '#00FF00',
                  'b': '#0000ff',
-                 'r': '#ff0000'}
+                 'y': '#ffff00'
+                 }
 
 gray_color = '#808080'
 

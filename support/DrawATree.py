@@ -21,11 +21,9 @@ def CreateTreeGraph(FilteredNodeDic: dict,
 
     # add colors
     nx.set_node_attributes(TreeGraph, TG_ColorDic, 'color')
-    colorList = list(nx.get_node_attributes(TreeGraph, 'color').values())
 
     # add sizes
     nx.set_node_attributes(TreeGraph, TG_SizeDic, 'size')
-    sizeList = list(nx.get_node_attributes(TreeGraph, 'size').values())
 
     # add labels
     nx.set_node_attributes(TreeGraph, TG_LabelDic, 'label')
@@ -144,11 +142,17 @@ def DrawATreeMatplotlib(VarToShow: str, WhatToShow: int):
             font_color="black"
             , ax=ax
             )
-    # drawNetworkxPlotly.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList,
-    #                                  labels=TG_LabelDic, font_size=8,
-    #                                  font_color="black")
     plt.axis('on')
     ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
     ax.get_yaxis().set_visible(False)
     plt.show()
 
+def DrawATreePlotly(VarToShow: str, WhatToShow: int):
+    TreeGraph, TG_ColorDic, TG_SizeDic, TG_LabelDic, TG_PosDic = GetATree(VarToShow, WhatToShow)
+    colorList = list(nx.get_node_attributes(TreeGraph, 'color').values())
+    sizeList = list(nx.get_node_attributes(TreeGraph, 'size').values())
+    fig = drawNetworkxPlotly.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList, labels=TG_LabelDic,
+                                  font_size=8,
+                                  font_color="black")
+    fig.update_layout(showlegend=False)
+    return fig
