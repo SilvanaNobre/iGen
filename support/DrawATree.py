@@ -138,7 +138,7 @@ def DrawATreeMatplotlib(VarToShow: str, WhatToShow: int):
 
     # add position
     nx.set_node_attributes(TreeGraph, TG_PosDic, 'pos')
-    nx.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList, labels=TG_LabelDic, font_size=8,
+    nx.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList, font_size=8,
             font_color="black"
             , ax=ax
             )

@@ -263,7 +263,8 @@ def GetSearchTable() -> dict:
             ValueIndex = KeyLength
             Value = value[ValueIndex]
             ValueDic[KeyValue] = Value
-        TableValueDic[tSearchParams.Table] = ValueDic
+        TableValueDicKey = tSearchParams.Table + "_" + tSearchParams.Return
+        TableValueDic[TableValueDicKey] = ValueDic
     return TableValueDic
 
 
