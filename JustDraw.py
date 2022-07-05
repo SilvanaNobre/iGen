@@ -12,12 +12,13 @@ def ArgumentParse():
     parser = argparse.ArgumentParser(description='Draw an iGen diagram.')
     parser.add_argument('--web', action=argparse.BooleanOptionalAction)
     parser.add_argument('--html_name', type=str)
+    parser.add_argument('--db_root', type=str)
     return parser.parse_args()
 
 if __name__ == '__main__':
     parser = ArgumentParse()
     iGenParams('RomeroInitData.json')
-    dbquery.db = r'sqlite:///D:\Atrium\Projects\Silvana\iGen\db\{0}'.format(iGenParams.DBFile)
+    dbquery.db = parser.db_root.format(iGenParams.DBFile)
     # Init.DbFile comes from initialization variables read in ReadInit.GetInit
     # open the connection with the Database
     ReadDB.GetDataToDraw(iGenParams.DBAArea)
