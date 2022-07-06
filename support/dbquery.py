@@ -16,7 +16,7 @@ def connectDB():
 def executeSQL(sql):
     conn = connectDB()
     try:
-        return conn.execute(sql).fetchall()
+        return conn.execute(sql).fetchall() if 'SELECT ' in sql.upper() else None
     except Exception as e:
         raise e
 
@@ -37,3 +37,9 @@ def getJSONResultset(sql):
 
 def getDataframeResultSet(sql):
     return pd.read_sql(sql, connectDB())
+
+def executeMany(sql: str, args_list: list):
+    for args in args_list:
+        for arg in args:
+            sql = sql.replace('?', f"'{arg}'", 1)
+        executeSQL(sql)

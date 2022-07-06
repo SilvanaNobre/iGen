@@ -4,19 +4,16 @@ Created on Mon April 06 2022
 """
 
 from ReadDB import GlobalVar
-
+from support import dbquery
 
 # delete all the nodes that were created by InferenceEngine
-def DeleteNodes(conn):
-    SqlString = "Delete from Nodes where PreviousNode <> 0"
-    cDelete = conn.cursor()
-    cDelete.execute(SqlString)
-    conn.commit()
+def DeleteNodes():
+    dbquery.executeSQL("Delete from Nodes where PreviousNode <> 0")
 
 
 # insert all the nodes that were created by InferenceEngine
-def InsertNewNodes(conn):
-    DeleteNodes(conn)
+def InsertNewNodes():
+    DeleteNodes()
     FieldCount = len(GlobalVar.NodeClassAttrNameList)
     FilteredNodes = {key: value for (key, value) in GlobalVar.NodeDic.items() if value.PreviousNode != 0}
     NewNodesList = []
@@ -32,6 +29,5 @@ def InsertNewNodes(conn):
         exec(ExecStr)
     RepeatMark = "?," * FieldCount
     SqlString = "INSERT into Nodes " + FieldList + "VALUES (" + RepeatMark + "?)"
-    cInsert = conn.cursor()
-    cInsert.executemany(SqlString, NewNodesList)
-    conn.commit()
+    dbquery.executeMany(SqlString, NewNodesList)
+    pass

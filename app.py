@@ -1,12 +1,12 @@
 import support.app_object as app_object
+import support.backend_functions
 
 app = app_object.app
 
 @app.route('/')
-@app.route('/')
 def index():
     return render_template('index.html',
-                           ufs=map_support.getUFs(),
+                           ufs=support.backend_functions.CreateGraphFig(),
                            municipios=map_support.getMunicipios('AC'))
 
 

@@ -1,4 +1,4 @@
-certifi==2022.5.18.1
+certifi==2022.6.15
 wincertstore==0.2
 matplotlib==3.5.2
 networkx==2.8.4
