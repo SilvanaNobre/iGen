@@ -1,16 +1,18 @@
 """
 Created on Mon April 06 2022
 @author: Silvana R Nobre
+
+--db_root "s --sqlite:///db/{0}" --fname scatter.html --web
 """
 from support import DrawATree
-from support import dbquery
+from support.dbquery import SqlAlchemy
 import ReadDB
 from iGenParams import iGenParams
 import argparse
 
 def ArgumentParse():
     parser = argparse.ArgumentParser(description='Draw an iGen diagram.')
-    parser.add_argument('--web', action=argparse.BooleanOptionalAction)
+    parser.add_argument('--web', action='store_true')
     parser.add_argument('--html_name', type=str)
     parser.add_argument('--db_root', type=str)
     return parser.parse_args()
@@ -18,7 +20,7 @@ def ArgumentParse():
 if __name__ == '__main__':
     parser = ArgumentParse()
     iGenParams('RomeroInitData.json')
-    dbquery.db = parser.db_root.format(iGenParams.DBFile)
+    SqlAlchemy(parser.db_root.format(iGenParams.DBFile), ['Nodes'])
     # Init.DbFile comes from initialization variables read in ReadInit.GetInit
     # open the connection with the Database
     ReadDB.GetDataToDraw(iGenParams.DBAArea)

@@ -4,30 +4,26 @@ Created on Mon April 06 2022
 """
 
 from ReadDB import GlobalVar
-from support import dbquery
+from support.dbquery import SqlAlchemy
 
 # delete all the nodes that were created by InferenceEngine
 def DeleteNodes():
-    dbquery.executeSQL("Delete from Nodes where PreviousNode <> 0")
+    SqlAlchemy.RunSql("Delete from Nodes where PreviousNode <> 0")
 
 
 # insert all the nodes that were created by InferenceEngine
 def InsertNewNodes():
     DeleteNodes()
-    FieldCount = len(GlobalVar.NodeClassAttrNameList)
-    FilteredNodes = {key: value for (key, value) in GlobalVar.NodeDic.items() if value.PreviousNode != 0}
-    NewNodesList = []
-    for k in FilteredNodes.keys():
-        NodeAttr = FilteredNodes[k]
-        FieldList = '(NodeId '
-        ExecStr = "NewNodesList.append((k "
-        for field in GlobalVar.NodeClassAttrNameList:
-            ExecStr += " , NodeAttr." + field
-            FieldList += ", " + field
-        FieldList += ') '
-        ExecStr += "))"
-        exec(ExecStr)
-    RepeatMark = "?," * FieldCount
-    SqlString = "INSERT into Nodes " + FieldList + "VALUES (" + RepeatMark + "?)"
-    dbquery.executeMany(SqlString, NewNodesList)
-    pass
+    Nodes2Add = []
+    Insert = {}
+    for NodeId, NodeData in GlobalVar.NodeDic.items():
+        if NodeData.PreviousNode != 0:
+            del NodeData.__dict__['_type']
+            for attr, value in NodeData.__dict__.items():
+                Insert[attr] = value
+            Node = SqlAlchemy.Base.classes.Nodes(**Insert)
+            Node.NodeId = NodeId
+            Nodes2Add.append(Node)
+    SqlAlchemy.Session.add_all(Nodes2Add)
+    SqlAlchemy.Session.commit()
+

@@ -3,7 +3,7 @@ Created on Mon April 04 2022
 @author: Silvana R Nobre
 """
 
-import support.dbquery as dbquery
+from support.dbquery import SqlAlchemy
 
 class BaseClass(object):
     def __init__(self, classtype):
@@ -66,7 +66,6 @@ class GlobalVar(object):
     NodeClassAttrNameList = []
     NodeClassAttrStr = ' '
 
-
 def GetSearchTableParams(FunctionStr) -> TableSearchParamsClass:
     tParams = TableSearchParamsClass(" ", " ", " ")
     fName = "SearchTable("
@@ -117,22 +116,22 @@ def GetVariables() -> dict:
             uRule = uRule.replace(tSearchParams.Return, NewReturnParam)
         return uRule
 
-    SqlString = f"SELECT v.VariableId, v.VarType, v.NoIntNodeUpdateRule " + \
+    SqlString = "SELECT v.VariableId, v.VarType, v.NoIntNodeUpdateRule " + \
                 "FROM Variable v " + \
                 "WHERE v.Scope = 'Node'"
-    variables = dbquery.executeSQL(SqlString)
+    rows = SqlAlchemy.Select(SqlString)
     LocalDic = {}
-    for variable in variables:
-        if variable[1][:3] == 'Int' or variable[1][:3] == 'int':
+    for row in rows:
+        if row[1][:3] == 'Int' or row[1][:3] == 'int':
             iV = 0
-        elif variable[1][:3] == 'Str' or variable[1][:3] == 'str':
+        elif row[1][:3] == 'Str' or row[1][:3] == 'str':
             iV = 'x'
-        elif variable[1][:3] == 'Dec' or variable[1][:3] == 'dec':
+        elif row[1][:3] == 'Dec' or row[1][:3] == 'dec':
             iV = 0.1
         else:
             iV = '0'
-        AjustedUpdateRule = AjustTableSearch(variable[2])
-        LocalDic[variable[0]] = ClassVar(VarType=variable[1], InitValue=iV, UpdateRule=AjustedUpdateRule)
+        AjustedUpdateRule = AjustTableSearch(row[2])
+        LocalDic[row[0]] = ClassVar(VarType=row[1], InitValue=iV, UpdateRule=AjustedUpdateRule)
     return LocalDic
 
 
@@ -171,12 +170,12 @@ def GetInitialNodes(dbAnalysisArea) -> dict:
             ClassStr += ","
         i += 1
     FieldStr = FieldStr + " "
-    SqlString = f"SELECT {FieldStr} " +\
-                "FROM Nodes as n INNER JOIN MgmUnit mu on mu.MgmUnitId = n.MgmUnit " +\
-                f"WHERE n.NodeType = 'Initial' and mu.AArea = '{dbAnalysisArea}'"
-    nodes = dbquery.executeSQL(SqlString)
+    SqlString = f"SELECT {FieldStr} " \
+                "FROM Nodes as n INNER JOIN MgmUnit mu on mu.MgmUnitId = n.MgmUnit " + \
+                f"WHERE n.NodeType = 'Initial' and mu.AArea = {dbAnalysisArea}"
+    rows = SqlAlchemy.Select(SqlString)
     LocalDic = {}
-    for row in nodes:
+    for row in rows:
         LocalDic[row[0]] = eval("GlobalVar.NodeClass(" + ClassStr + ")")
     return LocalDic
 
@@ -193,23 +192,22 @@ def GetAllNodes(dbAnalysisArea) -> dict:
         if i < LastItem:
             ClassStr += ","
         i += 1
-    SqlString = f"SELECT {FieldStr} " +\
-                "FROM Nodes as n INNER JOIN MgmUnit mu on mu.MgmUnitId = n.MgmUnit " +\
-                f"WHERE mu.AArea = '{dbAnalysisArea}'"
-    nodes = dbquery.executeSQL(SqlString)
+    FieldStr = FieldStr + " "
+    SqlString = "SELECT " + FieldStr + \
+                "FROM Nodes as n INNER JOIN MgmUnit mu on mu.MgmUnitId = n.MgmUnit " + \
+                f"WHERE mu.AArea = {dbAnalysisArea}"
+    rows = SqlAlchemy.Select(SqlString)
     LocalDic = {}
-    for row in nodes:
+    for row in rows:
         LocalDic[row[0]] = eval("GlobalVar.NodeClass(" + ClassStr + ")")
     return LocalDic
 
 
 # read the Intervention Types from the database
 def GetInterventionTypes() -> dict:
-    SqlString = "SELECT IntTypeId, NodeColor FROM InterventionType"
-    InterventionTypes = dbquery.executeSQL(SqlString)
     LocalDic = {}
-    for InterventionType in InterventionTypes:
-        LocalDic[InterventionType[0]] = InterventionType[1]
+    for row in SqlAlchemy.Select("SELECT IntTypeId, NodeColor FROM InterventionType"):
+        LocalDic[row[0]] = row[1]
     return LocalDic
 
 
@@ -217,11 +215,11 @@ def GetInterventionTypes() -> dict:
 def GetRules(dbAnalysisArea) -> dict:
     SqlString = "SELECT r.RuleId, r.LastIntervention, r.NextIntervention " + \
                 "FROM Rule r INNER JOIN ValidRule v on v.Rule = r.RuleId " + \
-                f"WHERE v.AArea ='{dbAnalysisArea}'"
-    rules = dbquery.executeSQL(SqlString)
+                f"WHERE v.AArea = {dbAnalysisArea}"
+    rows = SqlAlchemy.Select(SqlString)
     LocalDic = {}
-    for rule in rules:
-        LocalDic[rule[0]] = RuleClass(rule[1], rule[2])
+    for row in rows:
+        LocalDic[row[0]] = RuleClass(row[1], row[2])
     return LocalDic
 
 
@@ -229,11 +227,11 @@ def GetRules(dbAnalysisArea) -> dict:
 def GetRuleConditions(dbAnalysisArea) -> list:
     SqlString = "SELECT r.RuleId, r.IfOrThen, r.RuleVar, r.RuleExpression " + \
                 "FROM RuleCondition r INNER JOIN ValidRule v on v.Rule = r.RuleId " + \
-                "WHERE v.AArea = '{dbAnalysisArea}'"
-    RuleConditions = dbquery.executeSQL(SqlString)
+                f"WHERE v.AArea = {dbAnalysisArea}"
+    rows = SqlAlchemy.Select(SqlString)
     LocalList = []
-    for RuleCondition in RuleConditions:
-        LocalList.append(RuleConditionClass(RuleConditions[0], RuleCondition[1], RuleCondition[2], RuleCondition[3]))
+    for row in rows:
+        LocalList.append(RuleConditionClass(row[0], row[1], row[2], row[3]))
     return LocalList
 
 
@@ -243,16 +241,17 @@ def GetSearchTable() -> dict:
     TableValueDic = {}
 
     SqlTableString = "SELECT NoIntNodeUpdateRule FROM Variable " + \
-                     f"WHERE NoIntNodeUpdateRule LIKE '%SearchTable(%' "
-    tables = dbquery.executeSQL(SqlTableString)
-    for table in tables:
-        tSearchParams = GetSearchTableParams(table[0])
+                     "WHERE NoIntNodeUpdateRule LIKE '%SearchTable(%'"
+    tables = SqlAlchemy.Select(SqlTableString)
+
+    for row in tables:
+        tSearchParams = GetSearchTableParams(row[0])
         SqlValueString = "SELECT " + tSearchParams.Key + " , " + tSearchParams.Return + " " + \
                          "FROM " + tSearchParams.Table
-        values = dbquery.executeSQL(SqlValueString)
+        values = SqlAlchemy.Select(SqlValueString)
         ValueDic = {}
-        for value in values:
-            KeyLength = len(values) - 1
+        for rowv in values:
+            KeyLength = len(rowv) - 1
             ExprToEvaluate = "("
             for i in range(0, KeyLength):
                 ExprToEvaluate = ExprToEvaluate + "rowv[" + str(i) + "]"
@@ -261,22 +260,21 @@ def GetSearchTable() -> dict:
             ExprToEvaluate = ExprToEvaluate + ")"
             KeyValue = eval(ExprToEvaluate)
             ValueIndex = KeyLength
-            Value = value[ValueIndex]
+            Value = rowv[ValueIndex]
             ValueDic[KeyValue] = Value
-        TableValueDicKey = tSearchParams.Table + "_" + tSearchParams.Return
-        TableValueDic[TableValueDicKey] = ValueDic
+        TableValueDic[tSearchParams.Table] = ValueDic
     return TableValueDic
 
 
 # read General Parameters from the database
-def GetGlobalVar(dbAnalysisArea) -> dict:
+def GetGlobalVar(dbAnalysisArea) -> list:
     SqlString = "SELECT Variable, ParameterValue " + \
                 "FROM Parameter " + \
-                f"WHERE AArea = '{dbAnalysisArea}'"
-    parameters = dbquery.executeSQL(SqlString)
+                f"WHERE AArea = {dbAnalysisArea}"
+    rows = SqlAlchemy.Select(SqlString)
     LocalDic = {}
-    for parameter in parameters:
-        LocalDic[parameter[0]] = parameter[1]
+    for row in rows:
+        LocalDic[row[0]] = row[1]
     return LocalDic
 
 
@@ -302,7 +300,7 @@ def GetData(dbAnalysisArea):
     GlobalVar.LastNode = max(GlobalVar.NodeDic.keys())
 
 
-# end of def GetData(Name,dbAnalysisArea):
+# end of def GetData(dbFileName,dbAnalysisArea):
 
 # main function that gets all data needed just to draw a tree
 def GetDataToDraw(dbAnalysisArea):
@@ -316,5 +314,4 @@ def GetDataToDraw(dbAnalysisArea):
     GlobalVar.NodeDic = GetAllNodes(dbAnalysisArea)
     GlobalVar.IntTDic = GetInterventionTypes()
     GlobalVar.ParamDic = GetGlobalVar(dbAnalysisArea)
-
-# end of def GetDataToDraw(Name,dbAnalysisArea):
+# end of def GetDataToDraw(dbFileName,dbAnalysisArea):

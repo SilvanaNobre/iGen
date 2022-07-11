@@ -108,7 +108,7 @@ def GetATree(VarToShow: str, WhatToShow: int):
     TG_PosDic = {}
     for iNode in FilteredNodeDic.keys():
         TG_PosDic[iNode] = (FilteredNodeDic[iNode].Period, RowPosNode[iNode].Row)
-        TG_ColorDic[iNode] = gv.IntTDic[FilteredNodeDic[iNode].Intervention][0]
+        TG_ColorDic[iNode] = gv.IntTDic[FilteredNodeDic[iNode].Intervention]
         TG_LabelDic[iNode] = FilteredNodeDic[iNode].Intervention
         if FilteredNodeDic[iNode].Intervention == 'ni':
             TG_SizeDic[iNode] = int(gv.ParamDic['NoIntNodeSize'])

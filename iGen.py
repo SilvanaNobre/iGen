@@ -1,9 +1,11 @@
 """
 Created on Mon April 04 2022
 @author: Silvana R Nobre
+
+-pp ~/Atrium/iGen --db_root "sqlite:///db/{0}"
 """
 from support import DrawATree
-from support import dbquery
+from support.dbquery import SqlAlchemy
 import ReadDB as db
 import WriteDB as wdb
 from InferenceEngine import BuildATree
@@ -31,7 +33,7 @@ if __name__ == '__main__':
 
     # Init.DbFile comes from initialization variables read in ReadInit.GetInit
     # open the connection with the Database
-    dbquery.db = args.db_root.format(iGenParams.DBFile)
+    SqlAlchemy(args.db_root.format(iGenParams.DBFile), ['Nodes'])
 
     # Get all data needed from the database
     # InitVar.DBAArea also comes from initialization procedure

@@ -52,14 +52,12 @@ def draw_networkx_nodes(
 
     xy = np.asarray([pos[v] for v in nodelist])
 
-    colors = [color_pattern[color] for color in node_color]
-
     customdata = list(labels.values())
 
     fig.add_scatter(x=xy[:, 0], y=xy[:, 1],
                     mode='markers',
                     customdata=customdata,
-                    marker=dict(color=colors,
+                    marker=dict(color=node_color,
                                 size=node_size,
                                 opacity=1.0),
                     hovertemplate='%{customdata}'
