@@ -150,6 +150,8 @@ def OpenNode(LiNodeId):
     Period = LiPeriod
     PreviousNodeId = LiNodeId
     GenNodesCount = 0
+    NoInterventionNodeId = 0
+    InterventionNodeId = 0
 
     while True:
         Period = Period + 1
@@ -180,6 +182,9 @@ def OpenNode(LiNodeId):
             PreviousNodeId = NoInterventionNodeId
         else:
             break
+    print("NoInterventionNodeId=",NoInterventionNodeId)
+    print("InterventionNodeId=",InterventionNodeId)
+    print("LiNodeId=",LiNodeId)
     return GenNodesCount
 
 

@@ -44,5 +44,5 @@ if __name__ == '__main__':
 
     wdb.InsertNewNodes()
 
-    DrawATree.DrawATreeMatplotlib(iGenParams.DBVarToShow, iGenParams.DBToShow)
+    # DrawATree.DrawATreeMatplotlib(iGenParams.DBVarToShow, iGenParams.DBToShow)
     # prepare other 2 databases with new rules and initial nodes
