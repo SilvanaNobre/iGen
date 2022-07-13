@@ -102,7 +102,8 @@ def Match(Rule, NoInterventionNodeId) -> bool:
 # we always save the Last Intervention Node (LiNodeId) that comes before this NothingNode
 def CreateNoInterventionNode(NoInterventionNodeId, PreviousNodeId, LiNodeId, Period):
     def SearchTable(TableName, TableKey, ReturnValue):
-        Value = GlobalVar.SearchTableDic[TableName][TableKey]
+        TableValueDicKey = TableName + "_" + ReturnValue
+        Value = GlobalVar.SearchTableDic[TableValueDicKey][TableKey]
         return Value
 
     # ---------------------------------------------------------------------------------------------
