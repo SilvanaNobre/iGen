@@ -11,16 +11,29 @@ gray_color = '#808080'
 
 import networkx as nx
 
-def draw(G, pos=None, ax=None, **kwds):
+
+def draw(G, pos=None, ax=None, title='', **kwds):
     if "with_labels" not in kwds:
         kwds["with_labels"] = "labels" in kwds
 
     fig = draw_networkx(G, pos=pos, ax=ax, **kwds)
+    fig.update_layout(
+        title={
+                'text': title
+        },
+        font=dict(
+            family="Courier New, monospace",
+            size=30
+        ),
+        xaxis=dict(
+            tickfont=dict(size=10)),
+        showlegend=False,
+        yaxis_visible=False, yaxis_showticklabels=False
+    )
     return fig
 
 
 def draw_networkx(G, pos=None, **kwds):
-
     from inspect import signature
 
     valid_node_kwds = signature(draw_networkx_nodes).parameters.keys()
@@ -37,16 +50,16 @@ def draw_networkx(G, pos=None, **kwds):
     fig = draw_networkx_nodes(G, pos, fig=fig, **node_kwds)
     return fig
 
-def draw_networkx_nodes(
-    G,
-    pos,
-    fig,
-    node_size,
-    labels,
-    nodelist=None,
-    node_color="#1f78b4",
-):
 
+def draw_networkx_nodes(
+        G,
+        pos,
+        fig,
+        node_size,
+        labels,
+        nodelist=None,
+        node_color="#1f78b4",
+):
     if nodelist is None:
         nodelist = list(G)
 
@@ -66,17 +79,17 @@ def draw_networkx_nodes(
 
 
 def draw_networkx_edges(
-    G,
-    pos,
-    fig,
-    edgelist=None
+        G,
+        pos,
+        fig,
+        edgelist=None
 ):
     if edgelist is None:
         edgelist = list(G.edges())
 
     edge_pos = np.asarray([(pos[e[0]], pos[e[1]]) for e in edgelist])
 
-    line=dict(color=gray_color, width=1)
+    line = dict(color=gray_color, width=1)
     for (src, dst) in edge_pos:
         x1, y1 = src
         x2, y2 = dst
@@ -84,7 +97,6 @@ def draw_networkx_edges(
                         marker=dict(size=0),
                         line=line,
                         hovertext='',
-                        hoverinfo='skip')
+                        hoverinfo='skip',
+                        text='xpto')
     return fig
-
-

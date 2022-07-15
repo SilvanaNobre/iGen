@@ -8,7 +8,9 @@ from support import DrawATree
 from support.dbquery import SqlAlchemy
 import ReadDB
 from iGenParams import iGenParams
+from ReadDB import GlobalVar
 import argparse
+import time
 
 def ArgumentParse():
     parser = argparse.ArgumentParser(description='Draw an iGen diagram.')
@@ -25,8 +27,14 @@ if __name__ == '__main__':
     # open the connection with the Database
     ReadDB.GetDataToDraw(iGenParams.DBAArea)
     if parser.web:
-        fig = DrawATree.DrawATreePlotly(iGenParams.DBVarToShow, iGenParams.DBToShow)
+        start = time.time()
+        fig = DrawATree.DrawATreePlotly(iGenParams.DBVarToShow, iGenParams.DBToShow,
+                                        Title=GlobalVar.ParamDic['ModelTitle'],
+                                        SubTitle=iGenParams.DBToShow)
+        print(time.time() - start)
         fig.write_html(parser.html_name)
     else:
+        start = time.time()
         DrawATree.DrawATreeMatplotlib(iGenParams.DBVarToShow, iGenParams.DBToShow)
+        print(time.time() - start)
 # end JustDrow

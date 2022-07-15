@@ -10,9 +10,9 @@ class ClassSpaceNode(object):
         self.Row = Row
         self.fRow = fRow
 
-def CreateTreeGraph(FilteredNodeDic: dict,
-              TG_ColorDic: dict, TG_SizeDic: dict, TG_LabelDic: dict, TG_PosDic: dict):
 
+def CreateTreeGraph(FilteredNodeDic: dict,
+                    TG_ColorDic: dict, TG_SizeDic: dict, TG_LabelDic: dict, TG_PosDic: dict):
     # create the Graph, nodes and edges
     TreeGraph = nx.MultiDiGraph()
     TreeGraph.add_nodes_from(FilteredNodeDic.keys())
@@ -35,6 +35,7 @@ def CreateTreeGraph(FilteredNodeDic: dict,
     for node in TreeGraph.nodes:
         TreeGraph.nodes[node]['pos'] = list(pos[node])
     return TreeGraph
+
 
 def GetATree(VarToShow: str, WhatToShow: int):
     # create the Graph, nodes and edges
@@ -106,19 +107,19 @@ def GetATree(VarToShow: str, WhatToShow: int):
     TG_SizeDic = {}
     TG_LabelDic = {}
     TG_PosDic = {}
+    TG_AgeDic = {}
     for iNode in FilteredNodeDic.keys():
         TG_PosDic[iNode] = (FilteredNodeDic[iNode].Period, RowPosNode[iNode].Row)
         TG_ColorDic[iNode] = gv.IntTDic[FilteredNodeDic[iNode].Intervention]
-        TG_LabelDic[iNode] = FilteredNodeDic[iNode].Intervention
         if FilteredNodeDic[iNode].Intervention == 'ni':
             TG_SizeDic[iNode] = int(gv.ParamDic['NoIntNodeSize'])
-            TG_LabelDic[iNode] = ''
+            TG_LabelDic[iNode] = f'{FilteredNodeDic[iNode].Age}'
         else:
             TG_SizeDic[iNode] = int(gv.ParamDic['RegularNodeSize'])
-            TG_LabelDic[iNode] = FilteredNodeDic[iNode].Intervention
-
+            TG_LabelDic[iNode] = f'{FilteredNodeDic[iNode].Intervention}<br>{FilteredNodeDic[iNode].Age}'
     TreeGraph = CreateTreeGraph(FilteredNodeDic, TG_ColorDic, TG_SizeDic, TG_LabelDic, TG_PosDic)
     return TreeGraph, TG_ColorDic, TG_SizeDic, TG_LabelDic, TG_PosDic
+
 
 def DrawATreeMatplotlib(VarToShow: str, WhatToShow: int):
     TreeGraph, TG_ColorDic, TG_SizeDic, TG_LabelDic, TG_PosDic = GetATree(VarToShow, WhatToShow)
@@ -147,12 +148,13 @@ def DrawATreeMatplotlib(VarToShow: str, WhatToShow: int):
     ax.get_yaxis().set_visible(False)
     plt.show()
 
-def DrawATreePlotly(VarToShow: str, WhatToShow: int):
+
+def DrawATreePlotly(VarToShow: str, WhatToShow: int, Title: str = '', SubTitle: str = ''):
     TreeGraph, TG_ColorDic, TG_SizeDic, TG_LabelDic, TG_PosDic = GetATree(VarToShow, WhatToShow)
     colorList = list(nx.get_node_attributes(TreeGraph, 'color').values())
     sizeList = list(nx.get_node_attributes(TreeGraph, 'size').values())
-    fig = drawNetworkxPlotly.draw(TreeGraph, TG_PosDic, node_color=colorList, node_size=sizeList, labels=TG_LabelDic,
+    fig = drawNetworkxPlotly.draw(TreeGraph, TG_PosDic, title=f'{Title} <br><sup>{SubTitle}</sup>',
+                                  node_color=colorList, node_size=sizeList, labels=TG_LabelDic,
                                   font_size=8,
                                   font_color="black")
-    fig.update_layout(showlegend=False)
     return fig
